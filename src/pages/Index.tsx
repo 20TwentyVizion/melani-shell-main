@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SystemBar from '@/components/SystemBar';
 import Dock from '@/components/Dock';
 import MovableWindow from '@/components/MovableWindow';
@@ -34,30 +34,50 @@ const DesktopIcon = ({ icon: Icon, label, onClick, position }: DesktopIconProps)
   );
 };
 
-const Index = () => {
-  const [currentWallpaper] = useState(() => {
-    const randomIndex = Math.floor(Math.random() * WALLPAPERS.length);
-    return WALLPAPERS[randomIndex];
-  });
+const GamesWindow = ({ onClose, onMinimize }: { onClose: () => void; onMinimize: () => void }) => {
+  return (
+    <MovableWindow
+      title="Games"
+      onClose={onClose}
+      onMinimize={onMinimize}
+      initialPosition={{ x: 100, y: 100 }}
+    >
+      <div className="w-[600px] h-[400px] p-4 bg-black/30">
+        <p className="text-white/80">Games window content will go here...</p>
+      </div>
+    </MovableWindow>
+  );
+};
 
+const Index = () => {
+  const [currentWallpaper, setCurrentWallpaper] = useState<string | null>(null);
   const [showGames, setShowGames] = useState(false);
+
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * WALLPAPERS.length);
+    const img = new Image();
+    img.onload = () => {
+      setCurrentWallpaper(WALLPAPERS[randomIndex]);
+    };
+    img.onerror = () => {
+      console.error('Failed to load wallpaper');
+      setCurrentWallpaper(WALLPAPERS[0]); // Fallback to first wallpaper
+    };
+    img.src = WALLPAPERS[randomIndex];
+  }, []);
 
   const handleGamesClick = () => {
     console.log('Games icon clicked, opening window');
-    setShowGames(prev => {
-      console.log('Setting showGames to:', !prev);
-      return !prev;
-    });
+    setShowGames(prev => !prev);
   };
-
-  console.log('Current showGames state:', showGames);
 
   return (
     <div className="min-h-screen relative overflow-hidden">
       <div 
         className="dynamic-bg"
         style={{ 
-          backgroundImage: `url(${currentWallpaper})`,
+          backgroundImage: currentWallpaper ? `url(${currentWallpaper})` : undefined,
+          backgroundColor: '#000' // Fallback color while loading
         }} 
       />
       <SystemBar onSettingsClick={() => {}} />
@@ -70,22 +90,10 @@ const Index = () => {
       />
 
       {showGames && (
-        <MovableWindow
-          title="Games"
-          onClose={() => {
-            console.log('Closing games window');
-            setShowGames(false);
-          }}
-          onMinimize={() => {
-            console.log('Minimizing games window');
-            setShowGames(false);
-          }}
-          initialPosition={{ x: 100, y: 100 }}
-        >
-          <div className="w-[600px] h-[400px] p-4 bg-black/30">
-            <p className="text-white/80">Games window content will go here...</p>
-          </div>
-        </MovableWindow>
+        <GamesWindow
+          onClose={() => setShowGames(false)}
+          onMinimize={() => setShowGames(false)}
+        />
       )}
 
       <Dock 
