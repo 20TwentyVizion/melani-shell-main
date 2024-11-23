@@ -25,6 +25,7 @@ const DraggableIcon = ({ icon: Icon, label, onClick, initialPosition }: Draggabl
   const iconRef = useRef<HTMLDivElement>(null);
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    console.log('Mouse down on icon');
     if (iconRef.current) {
       setIsDragging(true);
       dragStart.current = {
@@ -42,7 +43,12 @@ const DraggableIcon = ({ icon: Icon, label, onClick, initialPosition }: Draggabl
     }
   };
 
-  const handleMouseUp = () => {
+  const handleMouseUp = (e: React.MouseEvent) => {
+    console.log('Mouse up, isDragging:', isDragging);
+    if (!isDragging) {
+      console.log('Triggering click');
+      onClick();
+    }
     setIsDragging(false);
   };
 
@@ -57,8 +63,7 @@ const DraggableIcon = ({ icon: Icon, label, onClick, initialPosition }: Draggabl
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-      onClick={() => !isDragging && onClick()}
+      onMouseLeave={() => setIsDragging(false)}
     >
       <Icon className="w-8 h-8 text-white/80" />
       <span className="text-xs mt-2 text-white/80">{label}</span>
@@ -74,6 +79,11 @@ const Index = () => {
 
   const [showGames, setShowGames] = useState(false);
 
+  const handleGamesClick = () => {
+    console.log('Games icon clicked, opening window');
+    setShowGames(true);
+  };
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       <div 
@@ -87,7 +97,7 @@ const Index = () => {
       <DraggableIcon
         icon={Gamepad2}
         label="Games"
-        onClick={() => setShowGames(true)}
+        onClick={handleGamesClick}
         initialPosition={{ x: 24, y: 48 }}
       />
 
