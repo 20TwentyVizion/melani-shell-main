@@ -79,20 +79,3 @@
 .close-button {
   @apply bg-red-500 hover:bg-red-600;
 }
-
-.desktop-icons-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: auto;
-}
-
-.desktop-icon {
-  @apply flex flex-col items-center justify-center p-2 rounded-lg hover:bg-white/10 cursor-pointer transition-all;
-  width: 80px;
-  height: 80px;
-  position: absolute;
-  left: 24px;
-}

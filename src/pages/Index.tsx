@@ -1,9 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import SystemBar from '@/components/SystemBar';
 import Dock from '@/components/Dock';
-import MovableWindow from '@/components/MovableWindow';
-import Games from '@/components/games/Games';
-import { Bot, AppWindow, UserRound, Gamepad2, FileText } from 'lucide-react';
+import { Bot, AppWindow, UserRound, FileText } from 'lucide-react';
 
 const WALLPAPERS = [
   'https://cdn.leonardo.ai/users/6cd4ea3f-13be-4f8f-8b23-66cb07a2d68b/generations/6e2d59d3-2cf4-4d7a-8484-446785cdfbe0/Leonardo_Kino_XL_A_beautiful_wallpaper_for_a_new_techbased_sle_3.jpg',
@@ -44,14 +42,6 @@ const Index = () => {
     return WALLPAPERS[randomIndex];
   });
 
-  // For now, let's just focus on the Games window
-  const [showGames, setShowGames] = useState(false);
-
-  const handleGamesClick = () => {
-    console.log('Games icon clicked, current state:', !showGames);
-    setShowGames(prev => !prev);
-  };
-
   return (
     <div className="min-h-screen relative overflow-hidden">
       <div 
@@ -61,25 +51,6 @@ const Index = () => {
         }} 
       />
       <SystemBar onSettingsClick={() => {}} />
-      
-      <div className="desktop-icons-container relative z-10">
-        <DesktopIcon
-          icon={Gamepad2}
-          label="Games"
-          onClick={handleGamesClick}
-          top={240}
-        />
-      </div>
-
-      {showGames && (
-        <MovableWindow
-          title="Games"
-          onMinimize={() => setShowGames(false)}
-          onClose={() => setShowGames(false)}
-        >
-          <Games />
-        </MovableWindow>
-      )}
 
       <Dock 
         onSettingsClick={() => {}}
