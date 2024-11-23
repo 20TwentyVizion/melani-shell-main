@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import SystemBar from '@/components/SystemBar';
 import Dock from '@/components/Dock';
 import MovableWindow from '@/components/MovableWindow';
@@ -11,77 +11,22 @@ const WALLPAPERS = [
   'https://cdn.leonardo.ai/users/6cd4ea3f-13be-4f8f-8b23-66cb07a2d68b/generations/6e2d59d3-2cf4-4d7a-8484-446785cdfbe0/Leonardo_Kino_XL_A_beautiful_wallpaper_for_a_new_techbased_sle_0.jpg'
 ];
 
-interface DraggableIconProps {
+interface DesktopIconProps {
   icon: any;
   label: string;
   onClick: () => void;
-  initialPosition: { x: number; y: number };
+  position: { x: number; y: number };
 }
 
-const DraggableIcon = ({ icon: Icon, label, onClick, initialPosition }: DraggableIconProps) => {
-  const [position, setPosition] = useState(initialPosition);
-  const [isDragging, setIsDragging] = useState(false);
-  const dragStart = useRef({ x: 0, y: 0 });
-  const mouseStart = useRef({ x: 0, y: 0 });
-  const iconRef = useRef<HTMLDivElement>(null);
-  const hasMoved = useRef(false);
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    console.log('Mouse down on icon');
-    if (iconRef.current) {
-      hasMoved.current = false;
-      mouseStart.current = { x: e.clientX, y: e.clientY };
-      dragStart.current = {
-        x: e.clientX - position.x,
-        y: e.clientY - position.y
-      };
-    }
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!hasMoved.current) {
-      const dx = Math.abs(e.clientX - mouseStart.current.x);
-      const dy = Math.abs(e.clientY - mouseStart.current.y);
-      if (dx > 3 || dy > 3) {
-        hasMoved.current = true;
-        setIsDragging(true);
-      }
-    }
-
-    if (isDragging) {
-      const newX = e.clientX - dragStart.current.x;
-      const newY = e.clientY - dragStart.current.y;
-      setPosition({ x: newX, y: newY });
-    }
-  };
-
-  const handleMouseUp = (e: React.MouseEvent) => {
-    console.log('Mouse up, hasMoved:', hasMoved.current);
-    if (!hasMoved.current) {
-      console.log('Triggering click');
-      onClick();
-    }
-    setIsDragging(false);
-  };
-
-  const handleMouseLeave = () => {
-    if (isDragging) {
-      setIsDragging(false);
-    }
-  };
-
+const DesktopIcon = ({ icon: Icon, label, onClick, position }: DesktopIconProps) => {
   return (
     <div
-      ref={iconRef}
-      className={`desktop-icon ${isDragging ? 'dragging' : ''}`}
+      className="desktop-icon"
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`
       }}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseLeave}
+      onClick={onClick}
     >
       <Icon className="w-8 h-8 text-white/80" />
       <span className="text-xs mt-2 text-white/80">{label}</span>
@@ -112,11 +57,11 @@ const Index = () => {
       />
       <SystemBar onSettingsClick={() => {}} />
 
-      <DraggableIcon
+      <DesktopIcon
         icon={Gamepad2}
         label="Games"
         onClick={handleGamesClick}
-        initialPosition={{ x: 24, y: 48 }}
+        position={{ x: 24, y: 48 }}
       />
 
       {showGames && (
