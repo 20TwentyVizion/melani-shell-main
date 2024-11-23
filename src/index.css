@@ -74,6 +74,7 @@
   @apply fixed bg-black/30 backdrop-blur-lg border border-white/10 rounded-lg shadow-xl;
   min-width: 300px;
   min-height: 200px;
+  z-index: 50;
 }
 
 .window-header {
@@ -98,6 +99,7 @@
   height: 80px;
   position: absolute;
   user-select: none;
+  z-index: 10;
 }
 
 .close-button {

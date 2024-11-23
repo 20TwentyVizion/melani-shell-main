@@ -44,8 +44,13 @@ const Index = () => {
 
   const handleGamesClick = () => {
     console.log('Games icon clicked, opening window');
-    setShowGames(true);
+    setShowGames(prev => {
+      console.log('Setting showGames to:', !prev);
+      return !prev;
+    });
   };
+
+  console.log('Current showGames state:', showGames);
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -67,10 +72,17 @@ const Index = () => {
       {showGames && (
         <MovableWindow
           title="Games"
-          onClose={() => setShowGames(false)}
-          onMinimize={() => setShowGames(false)}
+          onClose={() => {
+            console.log('Closing games window');
+            setShowGames(false);
+          }}
+          onMinimize={() => {
+            console.log('Minimizing games window');
+            setShowGames(false);
+          }}
+          initialPosition={{ x: 100, y: 100 }}
         >
-          <div className="w-[600px] h-[400px] p-4">
+          <div className="w-[600px] h-[400px] p-4 bg-black/30">
             <p className="text-white/80">Games window content will go here...</p>
           </div>
         </MovableWindow>
