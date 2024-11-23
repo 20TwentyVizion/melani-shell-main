@@ -92,6 +92,23 @@
   @apply bg-yellow-500 hover:bg-yellow-600;
 }
 
+.desktop-icon {
+  @apply flex flex-col items-center justify-center p-2 rounded-lg hover:bg-white/10 cursor-pointer transition-all;
+  width: 80px;
+  height: 80px;
+  position: absolute;
+  user-select: none;
+}
+
+.desktop-icon:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.desktop-icon.dragging {
+  opacity: 0.8;
+  cursor: move;
+}
+
 .close-button {
   @apply bg-red-500 hover:bg-red-600;
 }
