@@ -45,7 +45,7 @@ const Index = () => {
 
   const handleGamesClick = () => {
     console.log('Games icon clicked, current state:', !showGames);
-    setShowGames(true);
+    setShowGames(prev => !prev);
   };
 
   return (
