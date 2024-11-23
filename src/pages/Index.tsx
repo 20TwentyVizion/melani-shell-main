@@ -17,12 +17,16 @@ interface DesktopIconProps {
   label: string;
   onClick: () => void;
   top: number;
+  left?: number;
 }
 
-const DesktopIcon = ({ icon: Icon, label, onClick, top }: DesktopIconProps) => (
+const DesktopIcon = ({ icon: Icon, label, onClick, top, left = 24 }: DesktopIconProps) => (
   <div 
     className="desktop-icon"
-    style={{ top: `${top + 48}px` }}
+    style={{ 
+      top: `${top + 48}px`,
+      left: `${left}px`
+    }}
     onClick={(e) => {
       e.preventDefault();
       console.log(`Clicking ${label} icon`);
@@ -58,13 +62,14 @@ const Index = () => {
       />
       <SystemBar onSettingsClick={() => {}} />
       
-      {/* For testing, let's just show the Games icon */}
-      <DesktopIcon
-        icon={Gamepad2}
-        label="Games"
-        onClick={handleGamesClick}
-        top={240}
-      />
+      <div className="desktop-icons-container relative z-10">
+        <DesktopIcon
+          icon={Gamepad2}
+          label="Games"
+          onClick={handleGamesClick}
+          top={240}
+        />
+      </div>
 
       {showGames && (
         <MovableWindow
