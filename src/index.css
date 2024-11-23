@@ -43,8 +43,24 @@
   @apply bg-black/30 backdrop-blur-lg border border-white/10;
 }
 
+@keyframes dock-hover {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1.1);
+  }
+}
+
 .dock-item {
-  @apply transition-all duration-200 ease-in-out hover:animate-dock-hover;
+  @apply transition-all duration-200 ease-in-out;
+}
+
+.dock-item:hover {
+  animation: dock-hover 0.3s ease-in-out forwards;
 }
 
 .dynamic-bg {
