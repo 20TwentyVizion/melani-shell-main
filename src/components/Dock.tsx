@@ -1,5 +1,4 @@
-import { ReactNode } from 'react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import React, { ReactNode } from 'react';
 import { cn } from "@/lib/utils";
 
 interface DockProps {
@@ -7,7 +6,7 @@ interface DockProps {
   className?: string;
 }
 
-const Dock = ({ children, className }: DockProps) => {
+const Dock: React.FC<DockProps> = ({ children, className }) => {
   return (
     <div className={cn(
       "fixed bottom-4 left-1/2 transform -translate-x-1/2 px-6 py-2 rounded-2xl",

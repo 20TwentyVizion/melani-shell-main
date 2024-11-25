@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useOSStore } from '@/store/os-store';
 import Dock from '@/components/Dock';
 import MovableWindow from '@/components/MovableWindow';

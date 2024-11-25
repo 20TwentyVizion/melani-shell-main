@@ -1,3 +1,4 @@
+import React from 'react';
 import { LucideIcon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
@@ -15,21 +16,21 @@ const sizeClasses = {
   sm: 'w-4 h-4',
   md: 'w-6 h-6',
   lg: 'w-8 h-8',
-};
+} as const;
 
 const variantClasses = {
   desktop: 'flex-col text-center space-y-1 hover:bg-background/20 rounded-lg p-2',
   dock: 'p-2 rounded-xl hover:bg-background/40 active:scale-95 transition-all duration-150',
-};
+} as const;
 
-export const DesktopIcon = ({ 
+export const DesktopIcon: React.FC<DesktopIconProps> = ({ 
   icon: Icon, 
   label, 
   onClick, 
   className,
   size = 'md',
   variant = 'desktop'
-}: DesktopIconProps) => {
+}) => {
   return (
     <TooltipProvider>
       <Tooltip>
