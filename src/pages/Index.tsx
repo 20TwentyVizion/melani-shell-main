@@ -4,6 +4,7 @@ import Dock from '@/components/Dock';
 import MovableWindow from '@/components/MovableWindow';
 import { DesktopIcon } from '@/components/desktop/DesktopIcon';
 import { Skeleton } from '@/components/ui/skeleton';
+import { WALLPAPERS } from '@/lib/constants';
 import {
   Bot,
   Settings as SettingsIcon,
@@ -37,12 +38,6 @@ export default function Index() {
   const [wallpaperIndex, setWallpaperIndex] = useState(0);
   const [wallpaperLoaded, setWallpaperLoaded] = useState(false);
 
-  const WALLPAPERS = [
-    '/wallpapers/1.jpg',
-    '/wallpapers/2.jpg',
-    '/wallpapers/3.jpg',
-  ];
-
   useEffect(() => {
     // Preload next wallpaper
     const nextIndex = (wallpaperIndex + 1) % WALLPAPERS.length;
@@ -59,20 +54,34 @@ export default function Index() {
     return () => clearInterval(interval);
   }, []);
 
+  const handleImageLoad = () => {
+    setWallpaperLoaded(true);
+  };
+
   return (
     <main 
-      className="h-screen w-screen overflow-hidden relative"
-      style={{
-        backgroundImage: `url(${WALLPAPERS[wallpaperIndex]})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        opacity: wallpaperLoaded ? 1 : 0,
-        transition: 'opacity 1s ease-in-out',
-      }}
-      onLoad={() => setWallpaperLoaded(true)}
+      className="h-screen w-screen overflow-hidden relative bg-gradient-to-br from-gray-900 to-gray-800"
     >
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 transition-opacity duration-1000"
+        style={{
+          backgroundImage: `url(${WALLPAPERS[wallpaperIndex]})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          opacity: wallpaperLoaded ? 1 : 0,
+        }}
+      >
+        <img 
+          src={WALLPAPERS[wallpaperIndex]} 
+          alt="" 
+          className="hidden" 
+          onLoad={handleImageLoad}
+        />
+      </div>
+
       {/* Desktop Icons */}
-      <div className="absolute top-4 left-4 space-y-4">
+      <div className="absolute top-4 left-4 space-y-4 z-10">
         <DesktopIcon
           icon={Bot}
           label="Melani"
@@ -180,7 +189,7 @@ export default function Index() {
       )}
 
       {/* Dock */}
-      <Dock>
+      <Dock className="z-50">
         <DesktopIcon
           icon={Bot}
           label="Melani"
