@@ -14,6 +14,7 @@ import {
   FileText,
   CalendarDays,
 } from 'lucide-react';
+import SystemBar from '@/components/SystemBar';
 
 // Lazy load components
 const Melani = React.lazy(() => import('@/components/melani/Melani'));
@@ -80,8 +81,11 @@ export default function Index() {
         />
       </div>
 
+      {/* System Bar */}
+      <SystemBar />
+
       {/* Desktop Icons */}
-      <div className="absolute top-4 left-4 space-y-4 z-10">
+      <div className="absolute top-16 left-4 space-y-4 z-10">
         <DesktopIcon
           icon={Bot}
           label="Melani"
