@@ -1,177 +1,236 @@
-import { useState, useEffect } from 'react';
-import SystemBar from '@/components/SystemBar';
+import { useState, useEffect, Suspense } from 'react';
+import { useOSStore } from '@/store/os-store';
 import Dock from '@/components/Dock';
 import MovableWindow from '@/components/MovableWindow';
-import Games from '@/components/games/Games';
-import Settings from '@/components/settings/Settings';
-import Profile from '@/components/profile/Profile';
-import Melani from '@/components/melani/Melani';
-import Music from '@/components/music/Music';
-import TextEditor from '@/components/editor/TextEditor';
-import Calendar from '@/components/calendar/Calendar';
-import { Bot, AppWindow, UserRound, Gamepad2, FileText, Music as MusicIcon, CalendarDays } from 'lucide-react';
-import { useOSStore } from '@/store/os-store';
+import { DesktopIcon } from '@/components/desktop/DesktopIcon';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Bot,
+  Settings as SettingsIcon,
+  User,
+  Gamepad2,
+  Music as MusicIcon,
+  FileText,
+  CalendarDays,
+} from 'lucide-react';
 
-const WALLPAPERS = [
-  'https://cdn.leonardo.ai/users/6cd4ea3f-13be-4f8f-8b23-66cb07a2d68b/generations/6e2d59d3-2cf4-4d7a-8484-446785cdfbe0/Leonardo_Kino_XL_A_beautiful_wallpaper_for_a_new_techbased_sle_3.jpg',
-  'https://cdn.leonardo.ai/users/6cd4ea3f-13be-4f8f-8b23-66cb07a2d68b/generations/6e2d59d3-2cf4-4d7a-8484-446785cdfbe0/Leonardo_Kino_XL_A_beautiful_wallpaper_for_a_new_techbased_sle_2.jpg',
-  'https://cdn.leonardo.ai/users/6cd4ea3f-13be-4f8f-8b23-66cb07a2d68b/generations/6e2d59d3-2cf4-4d7a-8484-446785cdfbe0/Leonardo_Kino_XL_A_beautiful_wallpaper_for_a_new_techbased_sle_1.jpg',
-  'https://cdn.leonardo.ai/users/6cd4ea3f-13be-4f8f-8b23-66cb07a2d68b/generations/6e2d59d3-2cf4-4d7a-8484-446785cdfbe0/Leonardo_Kino_XL_A_beautiful_wallpaper_for_a_new_techbased_sle_0.jpg'
-];
+// Lazy load components
+const Melani = React.lazy(() => import('@/components/melani/Melani'));
+const Settings = React.lazy(() => import('@/components/settings/Settings'));
+const Profile = React.lazy(() => import('@/components/profile/Profile'));
+const Games = React.lazy(() => import('@/components/games/Games'));
+const Music = React.lazy(() => import('@/components/music/Music'));
+const TextEditor = React.lazy(() => import('@/components/editor/TextEditor'));
+const Calendar = React.lazy(() => import('@/components/calendar/Calendar'));
 
-interface DesktopIconProps {
-  icon: any;
-  label: string;
-  onClick: () => void;
-  top: number;
-}
+// Loading fallback component
+const WindowSkeleton = () => (
+  <div className="w-full h-full p-4 space-y-4">
+    <Skeleton className="h-8 w-3/4" />
+    <Skeleton className="h-32 w-full" />
+    <Skeleton className="h-8 w-1/2" />
+  </div>
+);
 
-const DesktopIcon = ({ icon: Icon, label, onClick, top }: DesktopIconProps) => {
-  return (
-    <div
-      className="desktop-icon"
-      style={{
-        left: '24px',
-        top: `${top}px`
-      }}
-      onClick={onClick}
-    >
-      <Icon className="w-8 h-8 text-white/80" />
-      <span className="text-xs mt-2 text-white/80">{label}</span>
-    </div>
-  );
-};
-
-const Index = () => {
-  const [currentWallpaper] = useState(() => {
-    const randomIndex = Math.floor(Math.random() * WALLPAPERS.length);
-    return WALLPAPERS[randomIndex];
-  });
-
+export default function Index() {
   const { windows, actions } = useOSStore();
+  const [wallpaperIndex, setWallpaperIndex] = useState(0);
+  const [wallpaperLoaded, setWallpaperLoaded] = useState(false);
+
+  const WALLPAPERS = [
+    '/wallpapers/1.jpg',
+    '/wallpapers/2.jpg',
+    '/wallpapers/3.jpg',
+  ];
+
+  useEffect(() => {
+    // Preload next wallpaper
+    const nextIndex = (wallpaperIndex + 1) % WALLPAPERS.length;
+    const img = new Image();
+    img.src = WALLPAPERS[nextIndex];
+  }, [wallpaperIndex]);
+
+  // Change wallpaper every 5 minutes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setWallpaperIndex((prev) => (prev + 1) % WALLPAPERS.length);
+      setWallpaperLoaded(false);
+    }, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      <div 
-        className="dynamic-bg"
-        style={{ 
-          backgroundImage: `url(${currentWallpaper})`,
-        }} 
-      />
-      <SystemBar onSettingsClick={() => actions.openWindow('settings')} />
-      
-      <DesktopIcon
-        icon={Gamepad2}
-        label="Games"
-        onClick={() => actions.openWindow('games')}
-        top={120}
-      />
+    <main 
+      className="h-screen w-screen overflow-hidden relative"
+      style={{
+        backgroundImage: `url(${WALLPAPERS[wallpaperIndex]})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        opacity: wallpaperLoaded ? 1 : 0,
+        transition: 'opacity 1s ease-in-out',
+      }}
+      onLoad={() => setWallpaperLoaded(true)}
+    >
+      {/* Desktop Icons */}
+      <div className="absolute top-4 left-4 space-y-4">
+        <DesktopIcon
+          icon={Bot}
+          label="Melani"
+          onClick={() => actions.openWindow('melani')}
+          size="lg"
+        />
+        <DesktopIcon
+          icon={FileText}
+          label="Text Editor"
+          onClick={() => actions.openWindow('editor')}
+          size="lg"
+        />
+      </div>
 
-      <DesktopIcon
-        icon={UserRound}
-        label="Profile"
-        onClick={() => actions.openWindow('profile')}
-        top={220}
-      />
-
-      <DesktopIcon
-        icon={Bot}
-        label="Melani"
-        onClick={() => actions.openWindow('melani')}
-        top={320}
-      />
-
-      <DesktopIcon
-        icon={FileText}
-        label="Text Editor"
-        onClick={() => actions.openWindow('editor')}
-        top={420}
-      />
-
-      {windows.games.isOpen && (
-        <MovableWindow
-          title="Games"
-          onMinimize={() => actions.minimizeWindow('games')}
-          onClose={() => actions.closeWindow('games')}
-          isResizable
-        >
-          <Games />
-        </MovableWindow>
-      )}
-
-      {windows.settings.isOpen && (
-        <MovableWindow
-          title="Settings"
-          onMinimize={() => actions.minimizeWindow('settings')}
-          onClose={() => actions.closeWindow('settings')}
-          isResizable
-        >
-          <Settings />
-        </MovableWindow>
-      )}
-
-      {windows.profile.isOpen && (
-        <MovableWindow
-          title="Profile"
-          onMinimize={() => actions.minimizeWindow('profile')}
-          onClose={() => actions.closeWindow('profile')}
-          isResizable
-        >
-          <Profile />
-        </MovableWindow>
-      )}
-
+      {/* Windows */}
       {windows.melani.isOpen && (
         <MovableWindow
-          title="Melani"
-          onMinimize={() => actions.minimizeWindow('melani')}
+          title={windows.melani.title}
           onClose={() => actions.closeWindow('melani')}
+          onMinimize={() => actions.minimizeWindow('melani')}
           isResizable
         >
-          <Melani />
-        </MovableWindow>
-      )}
-
-      {windows.music.isOpen && (
-        <MovableWindow
-          title="Music"
-          onMinimize={() => actions.minimizeWindow('music')}
-          onClose={() => actions.closeWindow('music')}
-          isResizable
-        >
-          <Music />
+          <Suspense fallback={<WindowSkeleton />}>
+            <Melani />
+          </Suspense>
         </MovableWindow>
       )}
 
       {windows.editor.isOpen && (
         <MovableWindow
-          title="Text Editor"
-          onMinimize={() => actions.minimizeWindow('editor')}
+          title={windows.editor.title}
           onClose={() => actions.closeWindow('editor')}
+          onMinimize={() => actions.minimizeWindow('editor')}
           isResizable
         >
-          <TextEditor />
+          <Suspense fallback={<WindowSkeleton />}>
+            <TextEditor />
+          </Suspense>
         </MovableWindow>
       )}
 
       {windows.calendar.isOpen && (
         <MovableWindow
-          title="Calendar"
-          onMinimize={() => actions.minimizeWindow('calendar')}
+          title={windows.calendar.title}
           onClose={() => actions.closeWindow('calendar')}
+          onMinimize={() => actions.minimizeWindow('calendar')}
           isResizable
         >
-          <Calendar />
+          <Suspense fallback={<WindowSkeleton />}>
+            <Calendar />
+          </Suspense>
         </MovableWindow>
       )}
 
-      <Dock 
-        onSettingsClick={() => actions.openWindow('settings')}
-        onMusicClick={() => actions.openWindow('music')}
-        onFilesClick={() => {}}
-      />
-    </div>
-  );
-};
+      {windows.settings.isOpen && (
+        <MovableWindow
+          title={windows.settings.title}
+          onClose={() => actions.closeWindow('settings')}
+          onMinimize={() => actions.minimizeWindow('settings')}
+          isResizable
+        >
+          <Suspense fallback={<WindowSkeleton />}>
+            <Settings />
+          </Suspense>
+        </MovableWindow>
+      )}
 
-export default Index;
+      {windows.profile.isOpen && (
+        <MovableWindow
+          title={windows.profile.title}
+          onClose={() => actions.closeWindow('profile')}
+          onMinimize={() => actions.minimizeWindow('profile')}
+          isResizable
+        >
+          <Suspense fallback={<WindowSkeleton />}>
+            <Profile />
+          </Suspense>
+        </MovableWindow>
+      )}
+
+      {windows.games.isOpen && (
+        <MovableWindow
+          title={windows.games.title}
+          onClose={() => actions.closeWindow('games')}
+          onMinimize={() => actions.minimizeWindow('games')}
+          isResizable
+        >
+          <Suspense fallback={<WindowSkeleton />}>
+            <Games />
+          </Suspense>
+        </MovableWindow>
+      )}
+
+      {windows.music.isOpen && (
+        <MovableWindow
+          title={windows.music.title}
+          onClose={() => actions.closeWindow('music')}
+          onMinimize={() => actions.minimizeWindow('music')}
+          isResizable
+        >
+          <Suspense fallback={<WindowSkeleton />}>
+            <Music />
+          </Suspense>
+        </MovableWindow>
+      )}
+
+      {/* Dock */}
+      <Dock>
+        <DesktopIcon
+          icon={Bot}
+          label="Melani"
+          onClick={() => actions.openWindow('melani')}
+          variant="dock"
+          size="lg"
+        />
+        <DesktopIcon
+          icon={SettingsIcon}
+          label="Settings"
+          onClick={() => actions.openWindow('settings')}
+          variant="dock"
+          size="lg"
+        />
+        <DesktopIcon
+          icon={User}
+          label="Profile"
+          onClick={() => actions.openWindow('profile')}
+          variant="dock"
+          size="lg"
+        />
+        <DesktopIcon
+          icon={Gamepad2}
+          label="Games"
+          onClick={() => actions.openWindow('games')}
+          variant="dock"
+          size="lg"
+        />
+        <DesktopIcon
+          icon={MusicIcon}
+          label="Music"
+          onClick={() => actions.openWindow('music')}
+          variant="dock"
+          size="lg"
+        />
+        <DesktopIcon
+          icon={FileText}
+          label="Text Editor"
+          onClick={() => actions.openWindow('editor')}
+          variant="dock"
+          size="lg"
+        />
+        <DesktopIcon
+          icon={CalendarDays}
+          label="Calendar"
+          onClick={() => actions.openWindow('calendar')}
+          variant="dock"
+          size="lg"
+        />
+      </Dock>
+    </main>
+  );
+}
