@@ -6,7 +6,11 @@ import Games from '@/components/games/Games';
 import Settings from '@/components/settings/Settings';
 import Profile from '@/components/profile/Profile';
 import Melani from '@/components/melani/Melani';
-import { Bot, AppWindow, UserRound, Gamepad2, FileText, Settings as SettingsIcon } from 'lucide-react';
+import Music from '@/components/music/Music';
+import TextEditor from '@/components/editor/TextEditor';
+import Calendar from '@/components/calendar/Calendar';
+import { Bot, AppWindow, UserRound, Gamepad2, FileText, Music as MusicIcon, CalendarDays } from 'lucide-react';
+import { useOSStore } from '@/store/os-store';
 
 const WALLPAPERS = [
   'https://cdn.leonardo.ai/users/6cd4ea3f-13be-4f8f-8b23-66cb07a2d68b/generations/6e2d59d3-2cf4-4d7a-8484-446785cdfbe0/Leonardo_Kino_XL_A_beautiful_wallpaper_for_a_new_techbased_sle_3.jpg',
@@ -44,14 +48,7 @@ const Index = () => {
     return WALLPAPERS[randomIndex];
   });
 
-  const [showGames, setShowGames] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
-  const [showMelani, setShowMelani] = useState(false);
-
-  const handleGamesClick = () => {
-    setShowGames(true);
-  };
+  const { windows, actions } = useOSStore();
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -61,71 +58,116 @@ const Index = () => {
           backgroundImage: `url(${currentWallpaper})`,
         }} 
       />
-      <SystemBar onSettingsClick={() => setShowSettings(true)} />
+      <SystemBar onSettingsClick={() => actions.openWindow('settings')} />
       
       <DesktopIcon
         icon={Gamepad2}
         label="Games"
-        onClick={handleGamesClick}
+        onClick={() => actions.openWindow('games')}
         top={120}
       />
 
       <DesktopIcon
         icon={UserRound}
         label="Profile"
-        onClick={() => setShowProfile(true)}
+        onClick={() => actions.openWindow('profile')}
         top={220}
       />
 
       <DesktopIcon
         icon={Bot}
         label="Melani"
-        onClick={() => setShowMelani(true)}
+        onClick={() => actions.openWindow('melani')}
         top={320}
       />
 
-      {showGames && (
+      <DesktopIcon
+        icon={FileText}
+        label="Text Editor"
+        onClick={() => actions.openWindow('editor')}
+        top={420}
+      />
+
+      <DesktopIcon
+        icon={CalendarDays}
+        label="Calendar"
+        onClick={() => actions.openWindow('calendar')}
+        top={520}
+      />
+
+      {windows.games.isOpen && (
         <MovableWindow
           title="Games"
-          onMinimize={() => setShowGames(false)}
-          onClose={() => setShowGames(false)}
+          onMinimize={() => actions.minimizeWindow('games')}
+          onClose={() => actions.closeWindow('games')}
         >
           <Games />
         </MovableWindow>
       )}
 
-      {showSettings && (
+      {windows.settings.isOpen && (
         <MovableWindow
           title="Settings"
-          onMinimize={() => setShowSettings(false)}
-          onClose={() => setShowSettings(false)}
+          onMinimize={() => actions.minimizeWindow('settings')}
+          onClose={() => actions.closeWindow('settings')}
         >
           <Settings />
         </MovableWindow>
       )}
 
-      {showProfile && (
+      {windows.profile.isOpen && (
         <MovableWindow
           title="Profile"
-          onMinimize={() => setShowProfile(false)}
-          onClose={() => setShowProfile(false)}
+          onMinimize={() => actions.minimizeWindow('profile')}
+          onClose={() => actions.closeWindow('profile')}
         >
           <Profile />
         </MovableWindow>
       )}
 
-      {showMelani && (
+      {windows.melani.isOpen && (
         <MovableWindow
           title="Melani"
-          onMinimize={() => setShowMelani(false)}
-          onClose={() => setShowMelani(false)}
+          onMinimize={() => actions.minimizeWindow('melani')}
+          onClose={() => actions.closeWindow('melani')}
         >
           <Melani />
         </MovableWindow>
       )}
 
+      {windows.music.isOpen && (
+        <MovableWindow
+          title="Music"
+          onMinimize={() => actions.minimizeWindow('music')}
+          onClose={() => actions.closeWindow('music')}
+        >
+          <Music />
+        </MovableWindow>
+      )}
+
+      {windows.editor.isOpen && (
+        <MovableWindow
+          title="Text Editor"
+          onMinimize={() => actions.minimizeWindow('editor')}
+          onClose={() => actions.closeWindow('editor')}
+        >
+          <TextEditor />
+        </MovableWindow>
+      )}
+
+      {windows.calendar.isOpen && (
+        <MovableWindow
+          title="Calendar"
+          onMinimize={() => actions.minimizeWindow('calendar')}
+          onClose={() => actions.closeWindow('calendar')}
+        >
+          <Calendar />
+        </MovableWindow>
+      )}
+
       <Dock 
-        onSettingsClick={() => setShowSettings(true)}
+        onSettingsClick={() => actions.openWindow('settings')}
+        onMusicClick={() => actions.openWindow('music')}
         onFilesClick={() => {}}
       />
     </div>

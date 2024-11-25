@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/components/ui/use-toast';
 import { Bot, User, Send } from 'lucide-react';
+import { useOSStore } from '@/store/os-store';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -11,7 +12,7 @@ interface Message {
   isTyping?: boolean;
 }
 
-const GREETING_MESSAGE = "Hello! I'm Melani, your personal AI assistant. How can I help you today?";
+const GREETING_MESSAGE = "Hello! I'm Melani, your personal AI assistant. I can help you control the OS - try asking me to:\n• Open apps (e.g., 'open music')\n• Play music (e.g., 'play Neon Nights')\n• Open your profile\n\nHow can I assist you today?";
 
 const Melani = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -19,6 +20,9 @@ const Melani = () => {
   const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const osActions = useOSStore((state) => state.actions);
+  const currentSong = useOSStore((state) => state.currentSong);
+  const calendarState = useOSStore((state) => state.calendarState);
 
   useEffect(() => {
     // Show greeting message with typing animation when component mounts
@@ -28,7 +32,10 @@ const Melani = () => {
       // Wait for 1.5 seconds to simulate typing
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      setMessages([{ role: 'assistant', content: GREETING_MESSAGE }]);
+      setMessages([{ 
+        role: 'assistant', 
+        content: GREETING_MESSAGE 
+      }]);
     };
 
     showGreeting();
@@ -40,6 +47,96 @@ const Melani = () => {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const handleOSCommand = (message: string) => {
+    const lowerMessage = message.toLowerCase();
+
+    // Music commands
+    if (lowerMessage.includes('play') && lowerMessage.includes('music')) {
+      const songTitle = message.split('play')[1].trim();
+      osActions.openWindow('music');
+      osActions.playSong(songTitle, 'Unknown Artist');
+      return "Playing music: " + songTitle;
+    }
+
+    if (lowerMessage.includes('pause') && lowerMessage.includes('music')) {
+      osActions.pauseSong();
+      return "Paused music.";
+    }
+
+    if (lowerMessage.includes('resume') && lowerMessage.includes('music')) {
+      osActions.resumeSong();
+      return "Resumed music.";
+    }
+
+    // Window commands
+    const windowCommands = {
+      'open music': 'music',
+      'open games': 'games',
+      'open settings': 'settings',
+      'open profile': 'profile',
+      'open editor': 'editor',
+      'open text editor': 'editor',
+      'open calendar': 'calendar',
+      'open notepad': 'editor',
+    };
+
+    for (const [command, windowId] of Object.entries(windowCommands)) {
+      if (lowerMessage.includes(command)) {
+        osActions.openWindow(windowId as keyof typeof windowCommands);
+        return "Opened " + windowId + ".";
+      }
+    }
+
+    // Calendar-specific commands
+    if (lowerMessage.includes('what day is') || lowerMessage.includes('what\'s the date')) {
+      const today = new Date();
+      const formattedDate = today.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      return `Today is ${formattedDate}`;
+    }
+
+    if (lowerMessage.includes('any events') || lowerMessage.includes('what\'s happening')) {
+      const today = new Date();
+      const todayEvents = calendarState.events.filter(event => {
+        const eventDate = new Date(event.date);
+        return eventDate.getDate() === today.getDate() &&
+               eventDate.getMonth() === today.getMonth() &&
+               eventDate.getFullYear() === today.getFullYear();
+      });
+
+      if (todayEvents.length === 0) {
+        return "You don't have any events scheduled for today.";
+      }
+
+      const eventList = todayEvents.map(event => event.title).join(', ');
+      return `Today's events: ${eventList}`;
+    }
+
+    if (lowerMessage.includes('next holiday')) {
+      const today = new Date();
+      const nextHoliday = calendarState.holidays
+        .filter(holiday => new Date(holiday.date) > today)
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
+
+      if (nextHoliday) {
+        const holidayDate = new Date(nextHoliday.date).toLocaleDateString('en-US', {
+          weekday: 'long',
+          month: 'long',
+          day: 'numeric'
+        });
+        return `The next holiday is ${nextHoliday.title} on ${holidayDate}`;
+      }
+      
+      return "I couldn't find any upcoming holidays.";
+    }
+
+    return null;
+  };
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -59,6 +156,13 @@ const Melani = () => {
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     
+    // Check for OS commands first
+    const osResponse = handleOSCommand(input);
+    if (osResponse) {
+      setMessages(prev => [...prev, { role: 'assistant', content: osResponse }]);
+      return;
+    }
+
     // Add typing indicator for assistant
     setMessages(prev => [...prev, { role: 'assistant', content: '', isTyping: true }]);
     setIsLoading(true);
