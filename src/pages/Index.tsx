@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import SystemBar from '@/components/SystemBar';
-import Dock from '@/components/Dock';
-import MovableWindow from '@/components/MovableWindow';
+import Dock from '@/components/dock/Dock';
+import MovableWindow from '@/components/window/Window';
 import Games from '@/components/games/Games';
 import Settings from '@/components/settings/Settings';
 import Profile from '@/components/profile/Profile';
@@ -88,18 +88,12 @@ const Index = () => {
         top={420}
       />
 
-      <DesktopIcon
-        icon={CalendarDays}
-        label="Calendar"
-        onClick={() => actions.openWindow('calendar')}
-        top={520}
-      />
-
       {windows.games.isOpen && (
         <MovableWindow
           title="Games"
           onMinimize={() => actions.minimizeWindow('games')}
           onClose={() => actions.closeWindow('games')}
+          isResizable
         >
           <Games />
         </MovableWindow>
@@ -110,6 +104,7 @@ const Index = () => {
           title="Settings"
           onMinimize={() => actions.minimizeWindow('settings')}
           onClose={() => actions.closeWindow('settings')}
+          isResizable
         >
           <Settings />
         </MovableWindow>
@@ -120,6 +115,7 @@ const Index = () => {
           title="Profile"
           onMinimize={() => actions.minimizeWindow('profile')}
           onClose={() => actions.closeWindow('profile')}
+          isResizable
         >
           <Profile />
         </MovableWindow>
@@ -130,6 +126,7 @@ const Index = () => {
           title="Melani"
           onMinimize={() => actions.minimizeWindow('melani')}
           onClose={() => actions.closeWindow('melani')}
+          isResizable
         >
           <Melani />
         </MovableWindow>
@@ -140,6 +137,7 @@ const Index = () => {
           title="Music"
           onMinimize={() => actions.minimizeWindow('music')}
           onClose={() => actions.closeWindow('music')}
+          isResizable
         >
           <Music />
         </MovableWindow>
@@ -150,6 +148,7 @@ const Index = () => {
           title="Text Editor"
           onMinimize={() => actions.minimizeWindow('editor')}
           onClose={() => actions.closeWindow('editor')}
+          isResizable
         >
           <TextEditor />
         </MovableWindow>
@@ -160,6 +159,7 @@ const Index = () => {
           title="Calendar"
           onMinimize={() => actions.minimizeWindow('calendar')}
           onClose={() => actions.closeWindow('calendar')}
+          isResizable
         >
           <Calendar />
         </MovableWindow>
