@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import SystemBar from '@/components/SystemBar';
-import Dock from '@/components/dock/Dock';
-import MovableWindow from '@/components/window/Window';
+import Dock from '@/components/Dock';
+import MovableWindow from '@/components/MovableWindow';
 import Games from '@/components/games/Games';
 import Settings from '@/components/settings/Settings';
 import Profile from '@/components/profile/Profile';
